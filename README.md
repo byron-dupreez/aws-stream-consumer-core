@@ -3,7 +3,7 @@
 Core utilities used by both `kinesis-stream-consumer` and `dynamodb-stream-consumer` for building robust AWS Lambda 
 consumers of stream events from Amazon Web Services (AWS) Kinesis and DynamoDB streams respectively.
 
-This shared library originated from a copy of the 1.0.0.beta.17 version of `aws-stream-consumer` code at commit                    
+This shared library originated from a copy of the 1.0.0-beta.17 version of `aws-stream-consumer` code at commit                    
 `c18e97dfeea95589e2fceda07984a267b65692f8` (dated 15 Dec 2016), which was updated with the fixes and changes made to 
 `aws-stream-consumer` in the interim up to and including version `5.1.0`.
 
