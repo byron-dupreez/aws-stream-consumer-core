@@ -1,7 +1,8 @@
 {
   "loggingOptions": {
-    "logLevel": "info",
+    "logLevel": "INFO",
     "useLevelPrefixes": true,
+    "envLogLevelName": "LOG_LEVEL",
     "useConsoleTrace": false
   },
 
@@ -17,12 +18,11 @@
     "maxRetries": 0
   },
 
-  "streamProcessingOptions": {
-    "streamType": "kinesis",
-    "taskTrackingName": "taskTracking",
-    "timeoutAtPercentageOfRemainingTime": 0.8,
-    "maxNumberOfAttempts": 10,
-    "deadRecordQueueName": "DeadRecordQueue",
-    "deadMessageQueueName": "DeadMessageQueue"
+  "dynamoDBDocClientOptions": {
+    "maxRetries": 1
+  },
+
+  "taskFactoryOptions": {
+    "returnMode": "NORMAL"
   }
 }

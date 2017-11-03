@@ -1,20 +1,19 @@
 'use strict';
 
 /**
- * Unit tests for aws-stream-consumer/stream-processing.js
+ * Unit tests for aws-stream-consumer/esm-cache.js
  * @author Byron du Preez
  */
 
 const test = require('tape');
 
 // The test subject
-const streamProcessing = require('../stream-processing');
+const esmCache = require('../esm-cache');
+const clearCache = esmCache.clearCache;
 
 const samples = require('./samples');
 
-const esmCache = require('../esm-cache');
-
-const Batch = require('../batch');
+const streamProcessing = require("../stream-processing");
 
 function noop() {
 }
@@ -44,10 +43,6 @@ function generateMockLambda(err, responsesByFunction, ms) {
   };
 }
 
-// =====================================================================================================================
-// disableEventSourceMapping
-// =====================================================================================================================
-
 test('disableEventSourceMapping with avoidEsmCache false', t => {
   const avoidEsmCache = false;
 
@@ -60,14 +55,13 @@ test('disableEventSourceMapping with avoidEsmCache false', t => {
 
   const alias = 'dev';
   const invokedFunctionArn = samples.sampleInvokedFunctionArn(region, functionName, alias);
+  const invokedFunctionName = `${functionName}:${alias}`;
   const awsContext = samples.sampleAwsContext(functionName, '12', invokedFunctionArn, 2000);
 
   const stdOptions = require('../default-options.json');
-  const streamProcessingSettings = {
-    streamType: "kinesis", avoidEsmCache: avoidEsmCache, discardUnusableRecord: noop, discardRejectedMessage: noop
-  };
+  const streamProcessingOptions = {streamType: "kinesis"};
 
-  const context = streamProcessing.configureStreamProcessingWithSettings({}, streamProcessingSettings, undefined,
+  const context = streamProcessing.configureStreamProcessingWithSettings({}, {}, streamProcessingOptions,
     stdOptions, event, awsContext, false, noop);
 
   const esm = {
@@ -78,17 +72,15 @@ test('disableEventSourceMapping with avoidEsmCache false', t => {
 
   context.lambda = generateMockLambda(null, {listEventSourceMappings: mappings, updateEventSourceMapping: {}}, 1);
 
-  const batch = new Batch(event.Records, [], [], context);
-
-  esmCache.clearCache();
-  streamProcessing.disableSourceStreamEventSourceMapping(batch, context).then(
+  clearCache();
+  esmCache.disableEventSourceMapping(invokedFunctionName, streamName, avoidEsmCache, context).then(
     disabled => {
       t.equals(disabled, true, `event source mapping must be disabled`);
-      t.equals(esmCache.clearCache(), 1, `clearCache() must have deleted 1 cached promises`);
+      t.equals(clearCache(), 1, `clearCache() must have deleted 1 cached promises`);
       t.end();
     },
     err => {
-      esmCache.clearCache();
+      clearCache();
       t.end(err);
     }
   );
@@ -106,31 +98,28 @@ test('disableEventSourceMapping with avoidEsmCache false and no mappings', t => 
 
   const alias = 'dev';
   const invokedFunctionArn = samples.sampleInvokedFunctionArn(region, functionName, alias);
+  const invokedFunctionName = `${functionName}:${alias}`;
   const awsContext = samples.sampleAwsContext(functionName, '12', invokedFunctionArn, 2000);
 
   const stdOptions = require('../default-options.json');
-  const streamProcessingSettings = {
-    streamType: "kinesis", avoidEsmCache: avoidEsmCache, discardUnusableRecord: noop, discardRejectedMessage: noop
-  };
+  const streamProcessingOptions = {streamType: "kinesis"};
 
-  const context = streamProcessing.configureStreamProcessingWithSettings({}, streamProcessingSettings, undefined,
-    stdOptions, event, awsContext, false, noop);
+  const context = streamProcessing.configureStreamProcessingWithSettings({}, {}, streamProcessingOptions, stdOptions,
+    event, awsContext, false, noop);
 
   const mappings = {EventSourceMappings: []};
 
   context.lambda = generateMockLambda(null, {listEventSourceMappings: mappings, updateEventSourceMapping: {}}, 1);
 
-  const batch = new Batch(event.Records, [], [], context);
-
-  esmCache.clearCache();
-  streamProcessing.disableSourceStreamEventSourceMapping(batch, context).then(
+  clearCache();
+  esmCache.disableEventSourceMapping(invokedFunctionName, streamName, avoidEsmCache, context).then(
     disabled => {
       t.equals(disabled, false, `non-existent event source mapping must NOT be disabled`);
-      t.equals(esmCache.clearCache(), 1, `clearCache() must have deleted 1 cached promises`);
+      t.equals(clearCache(), 1, `clearCache() must have deleted 1 cached promises`);
       t.end();
     },
     err => {
-      esmCache.clearCache();
+      clearCache();
       t.end(err);
     }
   );
@@ -148,14 +137,13 @@ test('disableEventSourceMapping with avoidEsmCache true', t => {
 
   const alias = 'dev';
   const invokedFunctionArn = samples.sampleInvokedFunctionArn(region, functionName, alias);
+  const invokedFunctionName = `${functionName}:${alias}`;
   const awsContext = samples.sampleAwsContext(functionName, '12', invokedFunctionArn, 2000);
 
   const stdOptions = require('../default-options.json');
-  const streamProcessingSettings = {
-    streamType: "kinesis", avoidEsmCache: avoidEsmCache, discardUnusableRecord: noop, discardRejectedMessage: noop
-  };
+  const streamProcessingOptions = {streamType: "kinesis"};
 
-  const context = streamProcessing.configureStreamProcessingWithSettings({}, streamProcessingSettings, undefined,
+  const context = streamProcessing.configureStreamProcessingWithSettings({}, {}, streamProcessingOptions,
     stdOptions, event, awsContext, false, noop);
 
   const esm = {
@@ -166,17 +154,15 @@ test('disableEventSourceMapping with avoidEsmCache true', t => {
 
   context.lambda = generateMockLambda(null, {listEventSourceMappings: mappings, updateEventSourceMapping: {}}, 1);
 
-  const batch = new Batch(event.Records, [], [], context);
-
-  esmCache.clearCache();
-  streamProcessing.disableSourceStreamEventSourceMapping(batch, context).then(
+  clearCache();
+  esmCache.disableEventSourceMapping(invokedFunctionName, streamName, avoidEsmCache, context).then(
     disabled => {
       t.equals(disabled, true, `event source mapping must be disabled`);
-      t.equals(esmCache.clearCache(), 0, `clearCache() must have deleted 0 cached promises`);
+      t.equals(clearCache(), 0, `clearCache() must have deleted 0 cached promises`);
       t.end();
     },
     err => {
-      esmCache.clearCache();
+      t.equals(clearCache(), 0, `clearCache() must have deleted 0 cached promises`);
       t.end(err);
     }
   );
@@ -194,31 +180,28 @@ test('disableEventSourceMapping with avoidEsmCache true and no mappings', t => {
 
   const alias = 'dev';
   const invokedFunctionArn = samples.sampleInvokedFunctionArn(region, functionName, alias);
+  const invokedFunctionName = `${functionName}:${alias}`;
   const awsContext = samples.sampleAwsContext(functionName, '12', invokedFunctionArn, 2000);
 
   const stdOptions = require('../default-options.json');
-  const streamProcessingSettings = {
-    streamType: "kinesis", avoidEsmCache: avoidEsmCache, discardUnusableRecord: noop, discardRejectedMessage: noop
-  };
+  const streamProcessingOptions = {streamType: "kinesis"};
 
-  const context = streamProcessing.configureStreamProcessingWithSettings({}, streamProcessingSettings, undefined,
-    stdOptions, event, awsContext, false, noop);
+  const context = streamProcessing.configureStreamProcessingWithSettings({}, {}, streamProcessingOptions, stdOptions,
+    event, awsContext, false, noop);
 
   const mappings = {EventSourceMappings: []};
 
   context.lambda = generateMockLambda(null, {listEventSourceMappings: mappings, updateEventSourceMapping: {}}, 1);
 
-  const batch = new Batch(event.Records, [], [], context);
-
-  esmCache.clearCache();
-  streamProcessing.disableSourceStreamEventSourceMapping(batch, context).then(
+  clearCache();
+  esmCache.disableEventSourceMapping(invokedFunctionName, streamName, avoidEsmCache, context).then(
     disabled => {
       t.equals(disabled, false, `non-existent event source mapping must NOT be disabled`);
-      t.equals(esmCache.clearCache(), 0, `clearCache() must have deleted 0 cached promises`);
+      t.equals(clearCache(), 0, `clearCache() must have deleted 0 cached promises`);
       t.end();
     },
     err => {
-      esmCache.clearCache();
+      t.equals(clearCache(), 0, `clearCache() must have deleted 0 cached promises`);
       t.end(err);
     }
   );
