@@ -8,8 +8,8 @@ const streamEvents = require('aws-core-utils/stream-events');
 const lambdas = require('aws-core-utils/lambdas');
 
 /**
- * Common tracked state and tracking-related utilities and functions to be used by aws-stream-consumer modules.
- * @module aws-stream-consumer/tracking
+ * Common tracked state and tracking-related utilities and functions to be used by aws-stream-consumer-core modules.
+ * @module aws-stream-consumer-core/tracking
  * @author Byron du Preez
  */
 exports._ = '_'; //IDE workaround

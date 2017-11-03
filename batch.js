@@ -1,6 +1,6 @@
 /**
  * A Batch class that represents the current batch of records received in the Kinesis or DynamoDB stream event.
- * @module aws-stream-consumer/batch
+ * @module aws-stream-consumer-core/batch
  * @author Byron du Preez
  */
 'use strict';

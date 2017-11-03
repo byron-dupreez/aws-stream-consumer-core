@@ -36,7 +36,7 @@ const esmCache = require('./esm-cache');
 /**
  * Utilities for configuring stream processing, which configures and determines the processing behaviour of a stream
  * consumer.
- * @module aws-stream-consumer/stream-processing
+ * @module aws-stream-consumer-core/stream-processing
  * @author Byron du Preez
  */
 exports._ = '_'; //IDE workaround
@@ -101,7 +101,7 @@ function isStreamProcessingFullyConfigured(context) {
  *
  * Note that if either the given event or AWS context are undefined, then everything other than the event, AWS context &
  * stage will be configured. This missing configuration can be configured at a later point in your code by invoking
- * {@linkcode module:aws-stream-consumer/stream-processing#configureEventAwsContextAndStage}. This separation of configuration is
+ * {@linkcode module:aws-stream-consumer-core/stream-processing#configureEventAwsContextAndStage}. This separation of configuration is
  * primarily useful for unit testing.
  *
  * @param {Object|StreamProcessing|StandardContext} context - the context onto which to configure the given stream processing settings and standard settings

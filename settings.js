@@ -8,8 +8,8 @@ const trim = Strings.trim;
 const PROPERTY_NAME_SEPARATOR = ',';
 
 /**
- * Common setting-related utilities and functions to be used by aws-stream-consumer modules.
- * @module aws-stream-consumer/settings
+ * Common setting-related utilities and functions to be used by aws-stream-consumer-core modules.
+ * @module aws-stream-consumer-core/settings
  * @author Byron du Preez
  */
 exports._ = '_'; //IDE workaround

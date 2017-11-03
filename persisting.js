@@ -24,7 +24,7 @@ const deepEqual = require('deep-equal');
 
 /**
  * Utilities and functions to be used by the stream consumer to load its batch's previous state and save its batch's current state.
- * @module aws-stream-consumer/persisting
+ * @module aws-stream-consumer-core/persisting
  * @author Byron du Preez
  */
 exports._ = '_'; //IDE workaround

@@ -18,7 +18,7 @@ const deepEqual = require('deep-equal');
 
 /**
  * Utilities and functions to be used by stream consumer to sequence messages.
- * @module aws-stream-consumer/sequencing
+ * @module aws-stream-consumer-core/sequencing
  * @author Byron du Preez
  */
 exports._ = '_'; //IDE workaround

@@ -16,7 +16,7 @@ const FatalError = require('core-functions/errors').FatalError;
 
 /**
  * Utilities and functions to be used by a stream consumer to identify messages, which is necessary for sequencing, persisting & idempotency.
- * @module aws-stream-consumer/sequencing
+ * @module aws-stream-consumer-core/sequencing
  * @author Byron du Preez
  */
 exports._ = '_'; //IDE workaround

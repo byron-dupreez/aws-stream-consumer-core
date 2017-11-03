@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Unit tests for aws-stream-consumer/stream-consumer.js
+ * Unit tests for aws-stream-consumer-core/stream-consumer.js
  * @author Byron du Preez
  */
 

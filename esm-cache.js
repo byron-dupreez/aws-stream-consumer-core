@@ -16,7 +16,7 @@ const eventSourceMappingPromisesByKey = new WeakMap();
 
 /**
  * Utilities for getting, caching & disabling event source mappings.
- * @module aws-stream-consumer/esm-cache
+ * @module aws-stream-consumer-core/esm-cache
  * @author Byron du Preez
  */
 // exports.getEventSourceMapping = getEventSourceMapping;

@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Unit tests for aws-stream-consumer/sequencing.js
+ * Unit tests for aws-stream-consumer-core/sequencing.js
  * @author Byron du Preez
  */
 

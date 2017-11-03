@@ -65,7 +65,7 @@ const MIN_FINALISE_TIMEOUT_AT_PERCENTAGE = 0.8;
 
 /**
  * Utilities and functions to be used to robustly consume messages from an AWS Kinesis or DynamoDB event stream.
- * @module aws-stream-consumer/stream-consumer
+ * @module aws-stream-consumer-core/stream-consumer
  * @author Byron du Preez
  */
 exports._ = '_'; //IDE workaround

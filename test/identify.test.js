@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Unit tests for aws-stream-consumer/identify.js
+ * Unit tests for aws-stream-consumer-core/identify.js
  * @author Byron du Preez
  */
 

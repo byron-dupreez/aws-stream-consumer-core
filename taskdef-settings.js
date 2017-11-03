@@ -15,7 +15,7 @@ const rejectedMessageSettings = freeze({describeItem: describeRejectedMessage});
 
 /**
  * Common `TaskDef` settings & `describeItem` implementations to be used by stream consumer implementations.
- * @module aws-stream-consumer/taskdef-settings
+ * @module aws-stream-consumer-core/taskdef-settings
  * @author Byron du Preez
  */
 exports._ = '_'; //IDE workaround

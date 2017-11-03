@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Unit tests for aws-stream-consumer/esm-cache.js
+ * Unit tests for aws-stream-consumer-core/esm-cache.js
  * @author Byron du Preez
  */
 
