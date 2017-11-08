@@ -145,13 +145,13 @@ function loadBatchStateFromDynamoDB(batch, context) {
       Key: {streamConsumerId: streamConsumerId, shardOrEventID: shardOrEventID},
       ConsistentRead: true,
       ReturnConsumedCapacity: "NONE", //"TOTAL" or "INDEXES" or "NONE"
-      ProjectionExpression: ":streamConsumerId, :shardOrEventID, :messageStates, :rejectedMessageStates, :unusableRecordStates",
+      ProjectionExpression: "#streamConsumerId, #shardOrEventID, #messageStates, #rejectedMessageStates, #unusableRecordStates",
       ExpressionAttributeNames: {
-        ":streamConsumerId": "streamConsumerId",
-        ":shardOrEventID": "shardOrEventID",
-        ":messageStates": "messageStates",
-        ":rejectedMessageStates": "rejectedMessageStates",
-        ":unusableRecordStates": "unusableRecordStates"
+        "#streamConsumerId": "streamConsumerId",
+        "#shardOrEventID": "shardOrEventID",
+        "#messageStates": "messageStates",
+        "#rejectedMessageStates": "rejectedMessageStates",
+        "#unusableRecordStates": "unusableRecordStates"
       }
     };
 

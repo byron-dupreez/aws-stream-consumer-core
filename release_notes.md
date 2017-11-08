@@ -1,5 +1,9 @@
 ## Changes
 
+### 2.0.1
+- Patched `persisting` module:
+  - Fixed invalid `ProjectionExpression` & `ExpressionAttributeNames` clauses in `loadBatchStateFromDynamoDB` function
+
 ### 2.0.0
 - Commit of a completely overhauled version of `aws-stream-consumer`, which is now only a set of core modules containing 
   utilities that are shared and used by the new `kinesis-stream-consumer` and `dynamodb-stream-consumer` modules
