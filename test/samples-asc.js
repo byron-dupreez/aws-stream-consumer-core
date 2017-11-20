@@ -4,7 +4,7 @@
  * Utilities for generating samples of various AWS stream consumer artifacts for testing.
  * @author Byron du Preez
  */
-exports._ = '_'; //IDE workaround
+exports._$_ = '_$_'; //IDE workaround
 
 // For configuration
 exports.generateSampleMD5s = generateSampleMD5s;

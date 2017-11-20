@@ -19,7 +19,7 @@ const FatalError = require('core-functions/errors').FatalError;
  * @module aws-stream-consumer-core/sequencing
  * @author Byron du Preez
  */
-exports._ = '_'; //IDE workaround
+exports._$_ = '_$_'; //IDE workaround
 
 exports.generateAndSetMD5s = generateAndSetMD5s;
 exports.resolveAndSetEventIdAndSeqNos = resolveAndSetEventIdAndSeqNos;

@@ -68,13 +68,14 @@ const MIN_FINALISE_TIMEOUT_AT_PERCENTAGE = 0.8;
  * @module aws-stream-consumer-core/stream-consumer
  * @author Byron du Preez
  */
-exports._ = '_'; //IDE workaround
+exports._$_ = '_$_'; //IDE workaround
 
 // Processing
 exports.processStreamEvent = processStreamEvent;
 
 exports.validateTaskDefinitions = validateTaskDefinitions;
 
+// noinspection JSUnusedGlobalSymbols
 exports.FOR_TESTING_ONLY = {
   logStreamEvent: logStreamEvent,
 

@@ -1,5 +1,19 @@
 ## Changes
 
+### 2.0.3
+- Renamed dummy first exports (`exports._ = '_'; //IDE workaround`) of most modules to (`exports._$_ = '_$_';`) to avoid 
+  potential future collisions with `lodash` & `underscore`
+- Updated `core-functions` dependency to version 3.0.19
+- Updated `logging-utils` dependency to version 4.0.19
+- Updated `task-utils` dependency to version 7.0.2
+- Updated `aws-core-utils` dependency to version 7.0.10
+- Updated `aws-sdk` dev dependency to version 2.143.0
+- Updated `aws-core-test-utils` dev dependency to version 3.0.6
+
+### 2.0.2
+- Upgraded `aws-core-utils` dependency to 7.0.9 (to facilitate use of AWS XRay)
+- Upgraded `aws-sdk` dev dependency to 2.143.0
+
 ### 2.0.1
 - Patched `persisting` module:
   - Fixed invalid `ProjectionExpression` & `ExpressionAttributeNames` clauses in `loadBatchStateFromDynamoDB` function

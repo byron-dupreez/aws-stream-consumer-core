@@ -18,7 +18,7 @@ const rejectedMessageSettings = freeze({describeItem: describeRejectedMessage});
  * @module aws-stream-consumer-core/taskdef-settings
  * @author Byron du Preez
  */
-exports._ = '_'; //IDE workaround
+exports._$_ = '_$_'; //IDE workaround
 
 // TaskDefSettings with a `describeItem` function for batch initiating, processing & finalising tasks
 exports.batchSettings = batchSettings;

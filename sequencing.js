@@ -21,7 +21,7 @@ const deepEqual = require('deep-equal');
  * @module aws-stream-consumer-core/sequencing
  * @author Byron du Preez
  */
-exports._ = '_'; //IDE workaround
+exports._$_ = '_$_'; //IDE workaround
 
 exports.prepareMessagesForSequencing = prepareMessagesForSequencing;
 exports.compareSameKeyMessages = compareSameKeyMessages;

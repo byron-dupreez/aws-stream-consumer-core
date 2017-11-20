@@ -39,7 +39,7 @@ const esmCache = require('./esm-cache');
  * @module aws-stream-consumer-core/stream-processing
  * @author Byron du Preez
  */
-exports._ = '_'; //IDE workaround
+exports._$_ = '_$_'; //IDE workaround
 
 // Stream processing configuration - configures and determines the processing behaviour of a stream consumer
 exports.isStreamProcessingConfigured = isStreamProcessingConfigured;

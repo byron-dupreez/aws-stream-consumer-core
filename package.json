@@ -1,6 +1,6 @@
 {
   "name": "aws-stream-consumer-core",
-  "version": "2.0.1",
+  "version": "2.0.3",
   "description": "Common utilities for building robust AWS Lambda consumers of stream events from Amazon Web Services (AWS) Kinesis or DynamoDB streams",
   "author": "Byron du Preez",
   "license": "Apache-2.0",
@@ -11,17 +11,17 @@
     "test": "tape ./test/*.test.js"
   },
   "dependencies": {
-    "aws-core-utils": "7.0.8",
-    "core-functions": "3.0.18",
+    "aws-core-utils": "7.0.10",
+    "core-functions": "3.0.19",
     "deep-equal": "1.0.1",
     "lodash.groupby": "4.6.0",
     "lodash.uniq": "4.5.0",
-    "logging-utils": "4.0.18",
-    "task-utils": "7.0.1"
+    "logging-utils": "4.0.19",
+    "task-utils": "7.0.2"
   },
   "devDependencies": {
-    "aws-sdk": "2.128.0",
-    "aws-core-test-utils": "3.0.5",
+    "aws-sdk": "2.143.0",
+    "aws-core-test-utils": "3.0.6",
     "tape": "^4.8.0",
     "uuid": "3.1.0"
   },

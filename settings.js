@@ -12,7 +12,7 @@ const PROPERTY_NAME_SEPARATOR = ',';
  * @module aws-stream-consumer-core/settings
  * @author Byron du Preez
  */
-exports._ = '_'; //IDE workaround
+exports._$_ = '_$_'; //IDE workaround
 
 // Accessors for stream processing settings and functions
 exports.getStreamProcessingSetting = getStreamProcessingSetting;

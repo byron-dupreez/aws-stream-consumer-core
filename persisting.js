@@ -27,7 +27,7 @@ const deepEqual = require('deep-equal');
  * @module aws-stream-consumer-core/persisting
  * @author Byron du Preez
  */
-exports._ = '_'; //IDE workaround
+exports._$_ = '_$_'; //IDE workaround
 
 exports.saveBatchStateToDynamoDB = saveBatchStateToDynamoDB;
 exports.loadBatchStateFromDynamoDB = loadBatchStateFromDynamoDB;

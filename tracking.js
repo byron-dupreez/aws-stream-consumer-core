@@ -12,7 +12,7 @@ const lambdas = require('aws-core-utils/lambdas');
  * @module aws-stream-consumer-core/tracking
  * @author Byron du Preez
  */
-exports._ = '_'; //IDE workaround
+exports._$_ = '_$_'; //IDE workaround
 
 // Tracked state-related accessors
 exports.setMessage = setMessage;
