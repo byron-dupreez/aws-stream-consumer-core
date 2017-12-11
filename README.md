@@ -1,4 +1,4 @@
-# aws-stream-consumer-core v2.0.3
+# aws-stream-consumer-core v2.0.4
 
 Core utilities used by both `kinesis-stream-consumer` and `dynamodb-stream-consumer` for building robust AWS Lambda 
 consumers of stream events from Amazon Web Services (AWS) Kinesis and DynamoDB streams respectively.
@@ -37,7 +37,7 @@ This shared library originated from a copy of the 1.0.0-beta.17 version of `aws-
   modules for the `kinesis-stream-consumer` and `dynamodb-stream-consumer` modules
 
 ## Installation
-This module is exported as a [Node.js](https://nodejs.org/) module.
+This module is exported as a [Node.js](https://nodejs.org) module.
 
 Using npm:
 ```bash
@@ -46,7 +46,7 @@ $ npm i aws-stream-consumer-core  --save
 ```
 
 ## Unit tests
-This module's unit tests were developed with and must be run with [tape](https://www.npmjs.com/package/tape). The unit tests have been tested on [Node.js v4.3.2](https://nodejs.org/en/blog/release/v4.3.2/).  
+This module's unit tests were developed with and must be run with [tape](https://www.npmjs.com/package/tape). The unit tests have been tested on [Node.js v6.10.3](https://nodejs.org/en/blog/release/v6.10.3).  
 
 Install tape globally if you want to run multiple tests at once:
 ```bash
