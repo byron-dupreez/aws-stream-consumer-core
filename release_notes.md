@@ -1,5 +1,8 @@
 ## Changes
 
+### 2.0.5
+- Minor fixes to type definitions & JsDoc comments
+
 ### 2.0.4
 - Updated `aws-core-utils` dependency to version 7.0.11
 - Updated `core-functions` dependency to version 3.0.20

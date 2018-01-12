@@ -66,26 +66,16 @@ const flattenOpts = {skipSimplifyOutcomes: false};
  * @property {Message[]|undefined} [messages] - a list of zero or more successfully extracted messages
  * @property {UnusableRecord[]|undefined} [unusableRecords] - a list of zero or more unusable records encountered
  * @property {Message[]|undefined} [firstMessagesToProcess] - a list of the first messages to process (populated after messages have been sequenced)
- * @property {TaskDef[]} [processOneTaskDefs] - a list of zero or more "process one at a time" task definitions that will be used to generate the tasks to be executed on each message independently
- * @property {TaskDef[]} [processAllTaskDefs] - a list of zero or more "process all at once" task definitions that will be used to generate the tasks to be executed on all messages in the batch collectively
- * @property {TaskDef|undefined} [initiateTaskDef] - the initiate batch task definition
- * @property {TaskDef|undefined} [processTaskDef] - the process batch task definition
- * @property {TaskDef|undefined} [finaliseTaskDef] - the finalise batch task definition
- * @property {Promise|undefined} [initiatedPromise] - the initiated promise returned by the initiate batch task
- * @property {Promise|undefined} [processedPromise] - the processed promise returned by the process batch task
- * @property {Promise|undefined} [finalisedPromise] - the finalised promise returned by the finalise batch task
- * @property {Promise.<Outcomes>|undefined} [processOneTasksPromise] - a promise that will complete when all of the process one tasks complete
- * @property {Promise.<Outcomes>|undefined} [processAllTasksPromise] - a promise that will complete when all of the process all tasks complete
- * @property {Promise.<Outcomes>|undefined} [discardUnusableRecordsPromise] - a promise that will complete when all of the unusable records have been discarded
- * @property {WeakMap.<TrackedItem, AnyTrackedState>} states - a map of the state being tracked for each of the items being processed keyed by the tracked item
+ * @property {BatchTaskDefs|undefined} [taskDefs] - the task definitions of this batch
+ * @property {Map.<TrackedItem, AnyTrackedState>} states - a map of the state being tracked for each of the items being processed keyed by the tracked item
  */
 class Batch {
 
   /**
    * Constructs a new batch for the current batch of records received in the Kinesis or DynamoDB stream event.
    * @param {Record[]} records - the current batch of records received in the Kinesis or DynamoDB stream event
-   * @param {TaskDef[]|undefined} [processOneTaskDefs] - a list of zero or more "process one at a time" task definitions that will be used to generate the tasks to be executed on each message independently
-   * @param {TaskDef[]|undefined} [processAllTaskDefs] - a list of zero or more "process all at once" task definitions that will be used to generate the tasks to be executed on all messages in the batch collectively
+   * @param {ProcessOneTaskDef[]|undefined} [processOneTaskDefs] - a list of zero or more "process one at a time" task definitions that will be used to generate the tasks to be executed on each message independently
+   * @param {ProcessAllTaskDef[]|undefined} [processAllTaskDefs] - a list of zero or more "process all at once" task definitions that will be used to generate the tasks to be executed on all messages in the batch collectively
    * @param {StreamConsumerContext} context - the context to use
    */
   constructor(records, processOneTaskDefs, processAllTaskDefs, context) {
@@ -164,33 +154,6 @@ class Batch {
     Object.defineProperty(taskDefs, 'finaliseTaskDef', {
       value: undefined, enumerable: false, writable: true, configurable: true
     });
-
-    // Object.defineProperty(this, 'promises', {value: {}, enumerable: false, writable: true, configurable: true});
-    // const promises = this.promises;
-    //
-    // Object.defineProperty(promises, 'processOneTasksPromise', {
-    //   value: undefined, enumerable: false, writable: true, configurable: true
-    // });
-    // Object.defineProperty(promises, 'processAllTasksPromise', {
-    //   value: undefined, enumerable: false, writable: true, configurable: true
-    // });
-    //
-    // Object.defineProperty(promises, 'discardUnusableRecordsPromise', {
-    //   value: undefined, enumerable: false, writable: true, configurable: true
-    // });
-    // Object.defineProperty(promises, 'discardRejectedMessagesPromise', {
-    //   value: undefined, enumerable: false, writable: true, configurable: true
-    // });
-    //
-    // Object.defineProperty(promises, 'initiatedPromise', {
-    //   value: undefined, enumerable: false, writable: true, configurable: true
-    // });
-    // Object.defineProperty(promises, 'processedPromise', {
-    //   value: undefined, enumerable: false, writable: true, configurable: true
-    // });
-    // Object.defineProperty(promises, 'finalisedPromise', {
-    //   value: undefined, enumerable: false, writable: true, configurable: true
-    // });
 
     // Attach a map of all tracked states keyed by tracked object to this batch
     // /** @type {WeakMap.<TrackedItem, AnyTrackedState>} */

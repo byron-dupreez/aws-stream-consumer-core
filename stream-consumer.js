@@ -116,9 +116,9 @@ exports.FOR_TESTING_ONLY = {
  * extracted from the event.
  * Precondition: isStreamConsumerConfigured(context)
  * @param {AnyStreamEvent|*} event - the AWS stream event (or any other garbage passed as an event)
- * @param {TaskDef[]|undefined} [processOneTaskDefsOrNone] - an "optional" list of "processOne" task definitions that
+ * @param {ProcessOneTaskDef[]|undefined} [processOneTaskDefsOrNone] - an "optional" list of "processOne" task definitions that
  * will be used to generate the tasks to be executed on each message independently
- * @param {TaskDef[]|undefined} [processAllTaskDefsOrNone] - an "optional" list of "processAll" task definitions that
+ * @param {ProcessAllTaskDef[]|undefined} [processAllTaskDefsOrNone] - an "optional" list of "processAll" task definitions that
  * will be used to generate the tasks to be executed on all of the event's messages collectively
  * @param {StreamConsumerContext} context - the context to use
  * @returns {Promise.<Batch|BatchError>} a promise that will resolve with the batch processed or reject with an error
@@ -185,12 +185,12 @@ function processStreamEvent(event, processOneTaskDefsOrNone, processAllTaskDefsO
  * @param {Batch} batch - the batch to be initiated
  * @param {Cancellable|Object|undefined} [cancellable] - a cancellable object onto which to install cancel functionality
  * @param {StreamConsumerContext} context - the context to use
- * @returns {Promise} a promise that will resolve with the updated batch when the initiate batch task's execution completes
+ * @returns {Promise.<Batch>} a promise that will resolve with the updated batch when the initiate batch task's execution completes
  */
 function executeInitiateBatchTask(batch, cancellable, context) {
   /**
    * Defines the initiate batch task (and its sub-tasks) to be used to track the state of the initiating phase.
-   * @returns {TaskDef} a new initiate batch task definition (with its sub-task definitions)
+   * @returns {InitiateBatchTaskDef} a new initiate batch task definition (with its sub-task definitions)
    */
   function defineInitiateBatchTask() {
     const taskDef = TaskDef.defineTask(initiateBatch.name, initiateBatch, batchAndCancellableSettings);
@@ -206,7 +206,7 @@ function executeInitiateBatchTask(batch, cancellable, context) {
    * (pre-processing) phase.
    * @param {Batch} batch - the batch to be initiated
    * @param {StreamConsumerContext} context - the context to use
-   * @returns {Task} a new initiate batch task (with sub-tasks)
+   * @returns {InitiateBatchTask} a new initiate batch task (with sub-tasks)
    */
   function createInitiateBatchTask(batch, context) {
     // Define a new initiate batch task definition for the batch & update the batch with it
@@ -240,12 +240,12 @@ function executeInitiateBatchTask(batch, cancellable, context) {
  * @param {Batch} batch - the batch to be processed
  * @param {Cancellable|Object|undefined} [cancellable] - a cancellable object onto which to install cancel functionality
  * @param {StreamConsumerContext} context - the context to use
- * @returns {Promise} a promise that will resolve with the updated batch when the process batch task's execution completes
+ * @returns {Promise.<Batch>} a promise that will resolve with the updated batch when the process batch task's execution completes
  */
 function executeProcessBatchTask(batch, cancellable, context) {
   /**
    * Defines the process batch task (and its sub-tasks) to be used to track the state of the processing phase.
-   * @returns {TaskDef} a new process batch task definition (with its sub-task definitions)
+   * @returns {ProcessBatchTaskDef} a new process batch task definition (with its sub-task definitions)
    */
   function defineProcessBatchTask() {
     const taskDef = TaskDef.defineTask(processBatch.name, processBatch, batchAndCancellableSettings);
@@ -260,7 +260,7 @@ function executeProcessBatchTask(batch, cancellable, context) {
    * Creates a new process batch task to be used to process the batch and to strack the state of the processing phase.
    * @param {Batch} batch - the batch to be processed
    * @param {StreamConsumerContext} context - the context to use
-   * @returns {Task} a new process batch task (with sub-tasks)
+   * @returns {ProcessBatchTask} a new process batch task (with sub-tasks)
    */
   function createProcessBatchTask(batch, context) {
     // Define a new process task definition for the batch & updates the batch with it
@@ -292,12 +292,12 @@ function executeProcessBatchTask(batch, cancellable, context) {
  * @param {Outcomes} processOutcomes - all of the outcomes of the preceding process stage
  * @param {Cancellable|Object|undefined} [cancellable] - a cancellable object onto which to install cancel functionality
  * @param {StreamConsumerContext} context - the context to use
- * @returns {Promise} a promise that will resolve with the stream consumer results when the finalise batch task's execution completes
+ * @returns {Promise.<Batch>} a promise that will resolve with the batch when the finalise batch task's execution completes
  */
 function executeFinaliseBatchTask(batch, processOutcomes, cancellable, context) {
   /**
    * Defines the finalise batch task (and its sub-tasks) to be used to track the state of the finalising phase.
-   * @returns {TaskDef} a new finalise batch task definition (with its sub-task definitions)
+   * @returns {FinaliseBatchTaskDef} a new finalise batch task definition (with its sub-task definitions)
    */
   function defineFinaliseBatchTask() {
     const taskDef = TaskDef.defineTask(finaliseBatch.name, finaliseBatch, batchAndProcessOutcomesSettings);
@@ -311,7 +311,7 @@ function executeFinaliseBatchTask(batch, processOutcomes, cancellable, context) 
    * Creates a new finalise batch task to be used to finalise the batch and to track the state of the finalising phase.
    * @param {Batch} batch - the batch to be processed
    * @param {StreamConsumerContext} context - the context to use
-   * @returns {Task} a new finalise batch task (with sub-tasks)
+   * @returns {FinaliseBatchTask} a new finalise batch task (with sub-tasks)
    */
   function createFinaliseBatchTask(batch, context) {
     // Define a new finalise task definition for the batch & updates the batch with it
@@ -340,9 +340,9 @@ function executeFinaliseBatchTask(batch, processOutcomes, cancellable, context) 
  * definitions are invalid (and effectively make this Lambda unusable or useless). Any error thrown must subsequently
  * trigger a replay of all the records in this batch until the Lambda can be fixed.
  *
- * @param {TaskDef[]|undefined} processOneTaskDefs - an "optional" list of "processOne" task definitions that will be
+ * @param {ProcessOneTaskDef[]|undefined} processOneTaskDefs - an "optional" list of "processOne" task definitions that will be
  * used to generate the tasks to be executed on each message independently
- * @param {TaskDef[]|undefined} processAllTaskDefs - an "optional" list of "processAll" task definitions that will be
+ * @param {ProcessAllTaskDef[]|undefined} processAllTaskDefs - an "optional" list of "processAll" task definitions that will be
  * used to generate the tasks to be executed on all of the event's messages collectively
  * @param {StreamConsumerContext} context - the context to use
  * @throws {Error} a validation failure Error (if this Lambda is unusable or useless)
@@ -407,7 +407,7 @@ function whenDone(task, promise, cancellable, context) {
  * 1. Extracts and sequences all of the messages from all of the batch's records
  * 2. Loads and restores the previous state (if any) of the current batch
  * 3. Revives all of the tasks on all of the messages, all of the unusable records and on the batch itself
- * @this {Task} this is the main initiating task and this function is the `execute` function of the main initiating task
+ * @this {InitiateBatchTask} this is the main initiating task and this function is the `execute` function of the main initiating task
  * @param {Batch} batch - the batch of AWS Kinesis or DynamoDB stream event records to be initiated / pre-processed
  * @param {Object|Cancellable} cancellable -
  * @param {StreamConsumerContext} context - the context to use
@@ -477,7 +477,7 @@ function initiateBatch(batch, cancellable, context) {
  * 2. Starts executing every one of the defined process all tasks on the batch
  * 3. Starts discarding any and every one of the unusable records encountered
  * 4. Sets up a race between completion of all of the above and a timeout promise
- * @this {Task} this is the main processing task and this function is the `execute` function of the main processing task
+ * @this {ProcessBatchTask} this is the main processing task and this function is the `execute` function of the main processing task
  * @param {Batch} batch - the batch of AWS Kinesis or DynamoDB stream event records to be processed
  * @param {Cancellable|Object|undefined} [cancellable] - a cancellable object onto which to install cancel functionality
  * @param {StreamConsumerContext} context - the context to use
@@ -1163,7 +1163,7 @@ function preFinaliseBatch(batch, context) {
  * timeout expired to indicate this Lambda is running out of time) by first marking messages' incomplete tasks that have
  * exceeded the allowed number of attempts as discarded; then freezing all messages' tasks and then by handling all
  * still incomplete messages and discarding any rejected messages using the configured functions for both.
- * @this {Task} the primary finalising task
+ * @this {FinaliseBatchTask} this is the main finalising task and this function is the `execute` function of the main finalising task
  * @param {Batch} batch - the batch being processed
  * @param {Outcomes} processOutcomes - all of the outcomes of the preceding process stage
  * @param {Cancellable|Object} cancellable - a cancellable object onto which to install cancel functionality
@@ -1290,10 +1290,10 @@ function finaliseBatch(batch, processOutcomes, cancellable, context) {
       throw err;
     })
     .then(
-      results => {
+      batch => {
         // Post-finalise the batch after a successful finalise ...
         return postFinaliseBatchTask.execute(batch, context)
-          .then(() => results, () => results); // ... and then return the finalise results
+          .then(() => batch, () => batch); // ... and then return the finalise results
       },
       err => {
         // Post-finalise the batch after a failed finalise ...
@@ -1301,10 +1301,10 @@ function finaliseBatch(batch, processOutcomes, cancellable, context) {
           .then(() => Promise.reject(err), () => Promise.reject(err)); // ... and then return the finalise error
       })
     .then(
-      results => {
+      batch => {
         // Log the final results after a successful finalise ...
         logFinalResults(batch, undefined, context);
-        return results; // ... and then return the finalise results
+        return batch; // ... and then return the batch
       },
       err => {
         // Log the final results after a failed finalise ...
@@ -1414,12 +1414,10 @@ function freezeFinalisingTasks(batch, context) {
  * @param {Batch} batch - the batch that was processed
  * @param {Error|undefined} [finalError] - the final error with which the batch was terminated (if unsuccessful)
  * @param {StreamConsumerContext} context - the context to use
- * @returns {SummarizedFinalBatchResults|undefined} summarized final results
  */
 function logFinalResults(batch, finalError, context) {
   const summary = batch ? batch.summarizeFinalResults(finalError) : undefined;
   context.info(`Summarized final batch results: ${JSON.stringify(summary)}`);
-  return summary;
 }
 
 function saveBatchState(batch, context) {

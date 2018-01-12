@@ -287,13 +287,13 @@
 
 /**
  * @typedef {Object} BatchTaskDefs - contains all of the batch's task definitions
- * @property {TaskDef[]} processOneTaskDefs - the process one task definitions (if any)
- * @property {TaskDef[]} processAllTaskDefs - the process all task definitions (if any)
- * @property {TaskDef|undefined} [discardUnusableRecordTaskDef] - the discard one unusable record task definition (if any)
- * @property {TaskDef|undefined} [discardRejectedMessageTaskDef] - the discard one rejected message task definition (if any)
- * @property {TaskDef|undefined} [initiateTaskDef] - the initiate batch task definition
- * @property {TaskDef|undefined} [processTaskDef] - the process batch task definition
- * @property {TaskDef|undefined} [finaliseTaskDef] - the finalise batch task definition
+ * @property {ProcessOneTaskDef[]} processOneTaskDefs - a list of zero or more "process one at a time" task definitions that will be used to generate the {@link ProcessOneTask}s to be executed on each message independently
+ * @property {ProcessAllTaskDef[]} processAllTaskDefs - a list of zero or more "process all at once" task definitions that will be used to generate the {@link ProcessAllTask}s to be executed on all messages in the batch collectively
+ * @property {DiscardUnusableRecordTaskDef|undefined} [discardUnusableRecordTaskDef] - the discard unusable record task definition (if any), which will be used to define the {@link DiscardUnusableRecordTask}s to be executed
+ * @property {DiscardRejectedMessageTaskDef|undefined} [discardRejectedMessageTaskDef] - the discard rejected message task definition (if any), which will be used to define the {@link DiscardRejectedMessageTask}s to be executed
+ * @property {InitiateBatchTaskDef|undefined} [initiateTaskDef] - the initiate batch task definition
+ * @property {ProcessBatchTaskDef|undefined} [processTaskDef] - the process batch task definition
+ * @property {FinaliseBatchTaskDef|undefined} [finaliseTaskDef] - the finalise batch task definition
  */
 
 /**
@@ -338,6 +338,22 @@
  */
 
 /**
+ * @typedef {TasksByName} ProcessOneTasksByName - a map-like object that maps each of the {@link ProcessOneTask}s that it manages by the task's name
+ */
+
+/**
+ * @typedef {TasksByName} ProcessAllTasksByName - a map-like object that maps each of the {@link ProcessAllTask}s that it manages by the task's name
+ */
+
+/**
+ * @typedef {TasksByName} DiscardRejectedMessageTasksByName - a map-like object that maps each of the {@link DiscardRejectedMessageTask}s that it manages by the task's name
+ */
+
+/**
+ * @typedef {TasksByName} DiscardUnusableRecordTasksByName - a map-like object that maps each of the {@link DiscardUnusableRecordTask}s that it manages by the task's name
+ */
+
+/**
  * @typedef {TrackedState} MessageState - represents the state being tracked for an individual message being processed during stream consumption.
  * @property {Message|undefined} [message] - the message to which this state belongs
  * @property {UserRecord|undefined} [userRecord] - the user record (if any) from which the message was extracted
@@ -358,9 +374,9 @@
  * @property {string} eventSeqNo - the sequence number of the message's record, which can also be used to determine the sequence in which messages should be processed
  * @property {number|undefined} [eventSubSeqNo] - the optional sub-sequence number of the message within an aggregate Kinesis record's batch of user records / messages, which together with the eventID should uniquely identify the message (only applicable if the record is an aggregate record)
  * @property {MD5s|undefined} [md5s] - the MD5 message digest(s) generated from the message, its record and/or its user record (if any)
- * @property {TasksByName} [ones] - a map-like object that maps each process one message at a time Task (if any) by its name
- * @property {TasksByName} [alls] - a map-like object that maps each process all messages at once "slave" Task (if any) by its name
- * @property {TasksByName} [discards] - a map-like object that maps each discard one rejected message Task (if any) by its name
+ * @property {ProcessOneTasksByName} [ones] - a map-like object that maps each process one message at a time Task (see {@link ProcessOneTask}) (if any) by its name
+ * @property {ProcessAllTasksByName} [alls] - a map-like object that maps each process all messages at once "slave" Task (see {@link ProcessAllTask}) (if any) by its name
+ * @property {DiscardRejectedMessageTasksByName} [discards] - a map-like object that maps each discard one rejected message Task (see {@link DiscardRejectedMessageTask}) (if any) by its name
  */
 
 /**
@@ -374,17 +390,17 @@
  * @property {string|undefined} [eventSeqNo] - the sequence number (if any) of the unusable record
  * @property {number|undefined} [eventSubSeqNo] - the optional sub-sequence number of a user record within an aggregate Kinesis record's batch of user records, which together with the eventID should uniquely identify the user record (only applicable if the record is an aggregate record)
  * @property {MD5s|undefined} [md5s] - the MD5 message digest(s) generated from the unusable record and/or its user record (if any)
- * @property {TasksByName} [discards] - a map-like object that maps each discard one unusable record Task (if any) by its name
+ * @property {DiscardUnusableRecordTasksByName} [discards] - a map-like object that maps each discard one unusable record Task (see {@link DiscardUnusableRecordTask}) (if any) by its name
  */
 
 /**
  * @typedef {TrackedState} BatchState - represents the state being tracked for the {@link Batch} itself that is currently being processed during stream consumption.
  * Note that the tasks tracked on this state object's "alls" properties are master Tasks, which mirror and delegate
  * changes down to their corresponding slave Tasks on the individual messages within the batch.
- * @property {TasksByName} [alls] - a map-like object that maps each process all messages at once "master" Task (if any) by its name
- * @property {TasksByName} [initiatingTasks] - a map-like object that maps each initiating phase Task by its name (non-persistent!)
- * @property {TasksByName} [processingTasks] - a map-like object that maps each processing phase Task by its name (non-persistent!)
- * @property {TasksByName} [finalisingTasks] - a map-like object that maps each finalising phase Task by its name (non-persistent!)
+ * @property {ProcessAllTasksByName} [alls] - a map-like object that maps each process all messages at once "master" Task (see {@link ProcessAllTask}) (if any) by its name
+ * @property {TasksByName} [initiatingTasks] - a map-like object that maps each initiating phase Task (see {@link InitiateBatchTask}) by its name (non-persistent!)
+ * @property {TasksByName} [processingTasks] - a map-like object that maps each processing phase Task (see {@link ProcessBatchTask}) by its name (non-persistent!)
+ * @property {TasksByName} [finalisingTasks] - a map-like object that maps each finalising phase Task (see {@link FinaliseBatchTask}) by its name (non-persistent!)
  */
 
 /**
@@ -399,8 +415,8 @@
 
 /**
  * @typedef {TasksByName} PhaseTasks - a map-like object that maps each of the phase Tasks that it manages by the task's name
- * @property {Task} processing - the processing phase Task
- * @property {Task} [finalising] - the finalising phase Task
+ * @property {ProcessBatchTask} processing - the processing phase Task
+ * @property {FinaliseBatchTask} [finalising] - the finalising phase Task
  */
 
 /**
@@ -453,4 +469,77 @@
  * @typedef {Object} EventSourceMappingKey
  * @property {string} functionName
  * @property {string} streamName
+ */
+
+/**
+ * @typedef {TaskDef} ProcessOneTaskDef - a task definition to be used to create "process one at a time" tasks (see {@link ProcessOneTask})
+ * @property {function(message: Message, batch: Batch, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the tasks to be defined, which will be invoked with a message, the batch and the context
+ */
+
+/**
+ * @typedef {TaskDef} ProcessAllTaskDef - a task definition to be used to create "process all at once" tasks (see {@link ProcessAllTask})
+ * @property {function(batch: Batch, incompleteMessages: Message[], context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the tasks to be defined, which will be invoked with the batch, any incomplete messages of the batch and the context
+ */
+
+/**
+ * @typedef {TaskDef} DiscardUnusableRecordTaskDef - a task definition to be used to create "discard unusable record" tasks (see {@link DiscardUnusableRecordTask})
+ * @property {function(unusableRecord: Record, batch: Batch, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the tasks to be defined, which will be invoked with the unusable record to be discarded, the batch and the context
+ */
+
+/**
+ * @typedef {TaskDef} DiscardRejectedMessageTaskDef - a task definition to be used to create "discard rejected message" tasks (see {@link DiscardRejectedMessageTask})
+ * @property {function(rejectedMessage: Message, batch: Batch, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the tasks to be defined, which will be invoked with the rejected message to be discarded, the batch and the context
+ */
+
+
+/**
+ * @typedef {Task} ProcessOneTask - a "process one at a time" task defined by a "process one" task definition (see {@link ProcessOneTaskDef})
+ * @property {function(message: Message, batch: Batch, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the task, which will be invoked with a message, the batch and the context
+ */
+
+/**
+ * @typedef {Task} ProcessAllTask - a "process all at once" task defined by a "process all" task definition (see {@link ProcessAllTaskDef})
+ * @property {function(batch: Batch, incompleteMessages: Message[], context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the task, which will be invoked with the batch, any incomplete messages of the batch and the context
+ */
+
+/**
+ * @typedef {Task} DiscardUnusableRecordTask - a "discard unusable record" task defined by a "discard unusable record" task definition (see {@link DiscardUnusableRecordTaskDef})
+ * @property {function(unusableRecord: Record, batch: Batch, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the task, which will be invoked with the unusable record to be discarded, the batch and the context
+ */
+
+/**
+ * @typedef {Task} DiscardRejectedMessageTask - a "discard rejected message" task defined by a "discard rejected message" task definition (see {@link DiscardRejectedMessageTaskDef})
+ * @property {function(rejectedMessage: Message, batch: Batch, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the task, which will be invoked with the rejected message to be discarded, the batch and the context
+ */
+
+
+/**
+ * @typedef {Task} InitiateBatchTaskDef - the "initiate batch" task definition to be used to create the "initiate batch" task (see {@link InitiateBatchTask})
+ * @property {function(batch: Batch, cancellable: Cancellable, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the task, which will be invoked with the batch to be initiated, an optional cancellable object that can be used to prematurely cancel the initiation and the context
+ */
+
+/**
+ * @typedef {Task} ProcessBatchTaskDef - the "process batch" task definition to be used to create the "process batch" task (see {@link ProcessBatchTask})
+ * @property {function(batch: Batch, cancellable: Cancellable, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the task, which will be invoked with the batch to be processed, an optional cancellable object that can be used to prematurely cancel the processing and the context
+ */
+
+/**
+ * @typedef {Task} FinaliseBatchTaskDef - the "finalise batch" task definition to be used to create the "finalise batch" task (see {@link FinaliseBatchTask})
+ * @property {function(batch: Batch, processOutcomes: Outcome[], cancellable: Cancellable, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the task, which will be invoked with the batch to be finalised, the outcomes of the prior process batch phase, an optional cancellable object that can be used to prematurely cancel the finalisation and the context
+ */
+
+
+/**
+ * @typedef {Task} InitiateBatchTask - the "initiate batch" task defined by the "initiate batch" task definition (see {@link InitiateBatchTaskDef})
+ * @property {function(batch: Batch, cancellable: Cancellable, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the task, which will be invoked with the batch to be initiated, an optional cancellable object that can be used to prematurely cancel the initiation and the context
+ */
+
+/**
+ * @typedef {Task} ProcessBatchTask - the "process batch" task defined by the "process batch" task definition (see {@link ProcessBatchTaskDef})
+ * @property {function(batch: Batch, cancellable: Cancellable, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the task, which will be invoked with the batch to be processed, an optional cancellable object that can be used to prematurely cancel the processing and the context
+ */
+
+/**
+ * @typedef {Task} FinaliseBatchTask - the "finalise batch" task defined by the "finalise batch" task definition (see {@link FinaliseBatchTaskDef})
+ * @property {function(batch: Batch, processOutcomes: Outcome[], cancellable: Cancellable, context: StreamConsumerContext): (*|Promise.<*>)} execute - the `execute` function of the task, which will be invoked with the batch to be finalised, the outcomes of the prior process batch phase, an optional cancellable object that can be used to prematurely cancel the finalisation and the context
  */
