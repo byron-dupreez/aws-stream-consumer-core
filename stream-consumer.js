@@ -8,6 +8,7 @@ const isBlank = strings.isBlank;
 const isNotBlank = strings.isNotBlank;
 const stringify = strings.stringify;
 
+const isInstanceOf = require('core-functions/objects').isInstanceOf;
 const Arrays = require('core-functions/arrays');
 const tries = require('core-functions/tries');
 const Try = tries.Try;
@@ -168,7 +169,7 @@ function processStreamEvent(event, processOneTaskDefsOrNone, processAllTaskDefsO
         context.error(`Stream consumer failed`, err);
         Object.defineProperty(err, 'batch', {value: batch, enumerable: false});// i.e. err.batch = batch;
 
-        if (err instanceof FatalError) {
+        if (isInstanceOf(err, FatalError)) {
           return streamProcessing.handleFatalError(err, batch, context);
         }
         throw err;
@@ -522,7 +523,7 @@ function processBatch(batch, cancellable, context) {
     .then(timeoutTriggered => {
       if (timeoutTriggered) { // If the timeout triggered then
         // timeout any and all of the process one and all tasks on the messages (reusing the timeout error set on the processing task by createTimeoutPromise if any)
-        const timeoutError = task.error instanceof TimeoutError ? task.error :
+        const timeoutError = isInstanceOf(task.error, TimeoutError) ? task.error :
           new TimeoutError(`Ran out of time to complete ${task.name}`);
         batch.timeoutProcessingTasks(timeoutError);
         context.warn(timeoutError);
@@ -598,7 +599,7 @@ function extractAndSequenceMessages(batch, context) {
       }
 
       // Rethrow any FatalError
-      const fatal = outcomes.find(o => o instanceof Failure && o.error instanceof FatalError);
+      const fatal = outcomes.find(o => isInstanceOf(o, Failure) && isInstanceOf(o.error, FatalError));
       if (fatal) {
         throw fatal.error;
       }
@@ -672,7 +673,7 @@ function extractMessagesFromStreamEventRecord(record, batch, extractMessagesFrom
     err => {
       // Promise rejected with an error
       context.error(`Failed to extract messages from record (${record && record.eventID})`, err);
-      if (err instanceof FatalError) {
+      if (isInstanceOf(err, FatalError)) {
         throw err; // rethrow any FatalError
       }
       // NB: Do NOT throw an error in a non-fatal case, since an unparseable record will most likely remain an
@@ -1037,7 +1038,7 @@ function createTimeoutPromise(task, timeoutMs, timeoutCancellable, processCancel
       return triggered;
     },
     err => {
-      if (err instanceof DelayCancelledError) {
+      if (isInstanceOf(err, DelayCancelledError)) {
         // The timeout promise was cancelled, which means that the main completing promise must have completed and cancelled the timeout
         context.debug(`Timeout cancelled after ${task.name} completed - ${err.message}`);
         return false; // a DelayCancelledError will only be thrown if the timeout has NOT triggered
@@ -1082,7 +1083,7 @@ function createCompletedPromise(task, completingPromise, batch, timeoutCancellab
       return outcomes;
     },
     err => {
-      if (err instanceof CancelledError) {
+      if (isInstanceOf(err, CancelledError)) {
         // The completing promise was cancelled, which means the timeout must have triggered and cancelled it
         context.warn(`Cancelling ${task.name} for ${batch.describe(true)}`, err);
         const timeoutOpts = {overrideCompleted: false, overrideUnstarted: false, reverseAttempt: true};
@@ -1218,7 +1219,7 @@ function finaliseBatch(batch, processOutcomes, cancellable, context) {
     timeoutTriggered => {
       if (timeoutTriggered) { // If the timeout triggered then
         // timeout any and all of the finalising tasks (reusing the timeout error set on the finalise batch task by createTimeoutPromise if any)
-        const timeoutError = task.error instanceof TimeoutError ? task.error :
+        const timeoutError = isInstanceOf(task.error, TimeoutError) ? task.error :
           new TimeoutError(`Ran out of time to complete ${task.name}`);
         batch.timeoutFinalisingTasks(timeoutError);
         return Promise.reject(timeoutError);

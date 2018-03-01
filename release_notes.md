@@ -1,5 +1,14 @@
 ## Changes
 
+### 2.0.6
+- Changes to `batch` and `stream-consumer` modules:
+  - Replaced all of the `instanceof` checks against custom classes with calls to `isInstanceOf`
+- Updated `aws-core-utils` dependency to version 7.0.12
+- Updated `core-functions` dependency to version 3.0.22
+- Updated `logging-utils` dependency to version 4.0.22
+- Updated `task-utils` dependency to version 7.0.4
+- Updated `aws-sdk` dev dependency to version 2.190.0
+
 ### 2.0.5
 - Minor fixes to type definitions & JsDoc comments
 

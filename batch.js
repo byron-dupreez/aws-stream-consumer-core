@@ -13,6 +13,8 @@ const stringify = Strings.stringify;
 const isBlank = Strings.isBlank;
 const isNotBlank = Strings.isNotBlank;
 
+const isInstanceOf = require('core-functions/objects').isInstanceOf;
+
 // const copying = require('core-functions/copying');
 // const copy = copying.copy;
 // const deep = {deep: true};
@@ -372,7 +374,7 @@ class Batch {
       return {msg: message};
 
     } catch (err) {
-      if (err instanceof FatalError) {
+      if (isInstanceOf(err, FatalError)) {
         throw err;
       }
 
@@ -604,7 +606,7 @@ class Batch {
 
     return Promises.every(promises, cancellable, context).then(
       results => {
-        const failures = results.filter(o => o instanceof Failure);
+        const failures = results.filter(o => isInstanceOf(o, Failure));
         if (failures.length > 0) {
           context.error(`Failed to discard ${failures.length} of ${nsOfUs} for batch (${this.shardOrEventID}) - failures: ${stringify(failures.map(f => `${f.error}`))}`);
         } else {
@@ -947,7 +949,7 @@ class Batch {
 
       return Promises.every(promises, cancellable, context).then(
         outcomes => {
-          const failures = outcomes.filter(o => o instanceof Failure);
+          const failures = outcomes.filter(o => isInstanceOf(o, Failure));
           if (failures.length > 0) {
             context.error(`Failed to discard ${failures.length} of ${u} undiscarded of ${rs}`);
           }
