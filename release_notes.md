@@ -1,5 +1,8 @@
 ## Changes
 
+### 2.1.0
+- Updated `aws-core-utils` dependency to version 7.1.1
+
 ### 2.0.6
 - Changes to `batch` and `stream-consumer` modules:
   - Replaced all of the `instanceof` checks against custom classes with calls to `isInstanceOf`
