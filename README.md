@@ -1,4 +1,4 @@
-# aws-stream-consumer-core v2.1.2
+# aws-stream-consumer-core v2.1.3
 
 Core utilities used by both `kinesis-stream-consumer` and `dynamodb-stream-consumer` for building robust AWS Lambda 
 consumers of stream events from Amazon Web Services (AWS) Kinesis and DynamoDB streams respectively.
