@@ -15,6 +15,8 @@ const Try = tries.Try;
 const Failure = tries.Failure;
 const Success = tries.Success;
 const Promises = require('core-functions/promises');
+// const handleUnhandledRejection = Promises.handleUnhandledRejection;
+const ignoreUnhandledRejection = Promises.ignoreUnhandledRejection;
 const CancelledError = Promises.CancelledError;
 const DelayCancelledError = Promises.DelayCancelledError;
 
@@ -26,6 +28,8 @@ const TimeoutError = errors.TimeoutError;
 const TaskDef = require('task-utils/task-defs');
 const taskUtils = require('task-utils');
 const ReturnMode = taskUtils.ReturnMode;
+
+const FinalisedError = require('task-utils/core').FinalisedError;
 
 const Batch = require('./batch');
 
@@ -63,6 +67,8 @@ const flattenOpts = {skipSimplifyOutcomes: false};
 
 // Constants
 const MIN_FINALISE_TIMEOUT_AT_PERCENTAGE = 0.8;
+
+const dontOverrideTimedOut = {overrideTimedOut: false};
 
 /**
  * Utilities and functions to be used to robustly consume messages from an AWS Kinesis or DynamoDB event stream.
@@ -125,19 +131,13 @@ exports.FOR_TESTING_ONLY = {
  * @returns {Promise.<Batch|BatchError>} a promise that will resolve with the batch processed or reject with an error
  */
 function processStreamEvent(event, processOneTaskDefsOrNone, processAllTaskDefsOrNone, context) {
-
-  process.on('unhandledRejection', (reason, p) => {
-    context.warn('*** UnhandledPromiseRejectionWarning *** Unhandled rejection at: Promise', p, '\n  reason:', reason);
-    // application specific logging, throwing an error, or other logic here
-  });
-
   // Precondition - NB: Ensure that your stream consumer is fully configured before calling this function!
   // Check if the Lambda as configured will be unusable or useless, and if so, trigger a replay of all the records until it can be fixed
   try {
     validateTaskDefinitions(processOneTaskDefsOrNone, processAllTaskDefsOrNone, context);
   }
   catch (err) {
-    return Promise.reject(err);
+    return ignoreUnhandledRejection(Promise.reject(err));
   }
 
   if (context.traceEnabled) logStreamEvent(event, "Processing stream event", LogLevel.TRACE, context);
@@ -162,7 +162,7 @@ function processStreamEvent(event, processOneTaskDefsOrNone, processAllTaskDefsO
     const batch = new Batch(records, processOneTaskDefs, processAllTaskDefs, context);
 
     // Initiate the batch ... and then process the batch ... and then finalise the batch
-    return executeInitiateBatchTask(batch, {}, context)
+    return ignoreUnhandledRejection(executeInitiateBatchTask(batch, {}, context)
       .then(() => executeProcessBatchTask(batch, {}, context))
       .then(processOutcomes => executeFinaliseBatchTask(batch, processOutcomes, {}, context))
       .catch(err => {
@@ -173,11 +173,11 @@ function processStreamEvent(event, processOneTaskDefsOrNone, processAllTaskDefsO
           return streamProcessing.handleFatalError(err, batch, context);
         }
         throw err;
-      });
+      }));
 
   } catch (err) {
     context.error(`Stream consumer failed (in try-catch)`, err);
-    return Promise.reject(err);
+    return ignoreUnhandledRejection(Promise.reject(err));
   }
 }
 
@@ -232,7 +232,7 @@ function executeInitiateBatchTask(batch, cancellable, context) {
   // Terminate the initiate batch task with its first Failure outcome (if any); otherwise return its successful values
   return whenDone(initiateBatchTask, p, cancellable, context);
   // const donePromise = whenDone(initiateBatchTask, p, cancellable, context);
-  // Promises.avoidUnhandledPromiseRejectionWarnings([p, donePromise], context);
+  // handleUnhandledRejections([p, donePromise], context);
   // return donePromise;
 }
 
@@ -241,7 +241,7 @@ function executeInitiateBatchTask(batch, cancellable, context) {
  * @param {Batch} batch - the batch to be processed
  * @param {Cancellable|Object|undefined} [cancellable] - a cancellable object onto which to install cancel functionality
  * @param {StreamConsumerContext} context - the context to use
- * @returns {Promise.<Batch>} a promise that will resolve with the updated batch when the process batch task's execution completes
+ * @returns {Promise.<Outcomes>} a promise that will resolve with the outcomes of the process batch task's execution
  */
 function executeProcessBatchTask(batch, cancellable, context) {
   /**
@@ -283,7 +283,7 @@ function executeProcessBatchTask(batch, cancellable, context) {
   const p = processBatchTask.execute(batch, cancellable, context);
   return whenDone(processBatchTask, p, cancellable, context);
   // const donePromise = whenDone(processBatchTask, p, cancellable, context);
-  // Promises.avoidUnhandledPromiseRejectionWarnings([p, donePromise], context);
+  // handleUnhandledRejections([p, donePromise], context);
   // return donePromise;
 }
 
@@ -333,7 +333,7 @@ function executeFinaliseBatchTask(batch, processOutcomes, cancellable, context) 
   // Regardless of whether processing completes or times out, finalise the batch as best as possible
   const p = finaliseBatchTask.execute(batch, processOutcomes, cancellable, context);
 
-  return whenDone(finaliseBatchTask, p, cancellable, context).then(() =>  batch);
+  return whenDone(finaliseBatchTask, p, cancellable, context).then(() => batch);
 }
 
 /**
@@ -517,8 +517,6 @@ function processBatch(batch, cancellable, context) {
 
   context.debug(`Creating a process batch timeout to trigger after ${timeoutMs} ms (remaining time: ${context.awsContext.getRemainingTimeInMillis()} ms)`);
 
-  // let timedOut = false;
-
   const timeoutPromise = createTimeoutPromise(task, timeoutMs, timeoutCancellable, cancellable, context)
     .then(timeoutTriggered => {
       if (timeoutTriggered) { // If the timeout triggered then
@@ -527,23 +525,15 @@ function processBatch(batch, cancellable, context) {
           new TimeoutError(`Ran out of time to complete ${task.name}`);
         batch.timeoutProcessingTasks(timeoutError);
         context.warn(timeoutError);
-        // timedOut = true;
-        // Promises.avoidUnhandledPromiseRejectionWarning(processedPromise, context);
         return new Failure(timeoutError);
       }
       return timeoutTriggered;
     });
-
-  // Promises.avoidUnhandledPromiseRejectionWarning(timeoutPromise, context);
+  ignoreUnhandledRejection(timeoutPromise);
 
   // Build a completed promise that will only complete when the processed promise completes
   const completedPromise = createCompletedPromise(task, processedPromise, batch, timeoutCancellable, context);
-  // .then(outcomes => {
-  //   if (!timedOut) Promises.avoidUnhandledPromiseRejectionWarning(timeoutPromise, context);
-  //   return outcomes;
-  // });
-
-  // Promises.avoidUnhandledPromiseRejectionWarning(completedPromise, context);
+  ignoreUnhandledRejection(completedPromise);
 
   // Set up a race between the completed promise and the timeout promise
   return Promise.race([completedPromise, timeoutPromise]).then(
@@ -1076,7 +1066,7 @@ function createCompletedPromise(task, completingPromise, batch, timeoutCancellab
         if (failure) {
           task.fail(failure.error, false);
         } else {
-          task.complete(outcomes, {overrideTimedOut: false}, false);
+          task.complete(outcomes, dontOverrideTimedOut, false);
         }
         context.debug(`Completed ${task.name} for ${batch.describe(true)} - final state (${task.state})`);
       }
@@ -1228,8 +1218,10 @@ function finaliseBatch(batch, processOutcomes, cancellable, context) {
       return timeoutTriggered;
     }
   );
+  ignoreUnhandledRejection(timeoutPromise);
 
   const completedPromise = createCompletedPromise(task, finalisingPromise, batch, timeoutCancellable, context);
+  ignoreUnhandledRejection(completedPromise);
 
   const completedVsTimeoutPromise = Promise.race([completedPromise, timeoutPromise]);
 
@@ -1250,6 +1242,15 @@ function finaliseBatch(batch, processOutcomes, cancellable, context) {
 
       // Throw an error to trigger replay of the batch if the batch is NOT fully finalised yet (& sequencing is required)
       if (!batch.isFullyFinalised()) {
+        // Find the first FinalisedError failure amongst the processing failures (if any)
+        const finalisedFailure = Arrays.flatten(processOutcomes).find(o => o.isFailure() && isInstanceOf(o.error, FinalisedError));
+        if (finalisedFailure) {
+          // Convert the FinalisedError into a FatalError
+          const fatalError = new FatalError(`FATAL - ${finalisedFailure.error.message}`, finalisedFailure.error);
+          context.error(fatalError);
+          throw fatalError;
+        }
+
         // Find the first processing failure (if any)
         const processFailure = Try.findFailure(processOutcomes);
 

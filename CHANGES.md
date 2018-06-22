@@ -1,5 +1,12 @@
 ## Changes
 
+### 2.1.7
+- Changes to `stream-consumer` module:
+  - Removed the leaky registration of an `unhandledRejection` event handler on the global `process` object
+  - Added rethrow of any `FinalisedError` failure amongst the processing outcomes as a `FatalError`
+  - Added calls to `Promises.ignoreUnhandledRejection` to avoid spurious unhandled rejection warnings when ending with an error
+- Updated dependencies
+
 ### 2.1.6
 - Updated dependencies
 
