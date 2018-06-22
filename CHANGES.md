@@ -1,5 +1,8 @@
 ## Changes
 
+### 2.1.9
+- Fixed search for `FinaliseError` failures amongst the processing outcomes to survive non-Array outcomes
+
 ### 2.1.8
 - Fixed search for `FinaliseError` failures amongst the processing outcomes to avoid non-Try/undefined/null outcomes
 

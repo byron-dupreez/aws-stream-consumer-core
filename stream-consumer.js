@@ -1244,7 +1244,7 @@ function finaliseBatch(batch, processOutcomes, cancellable, context) {
       if (!batch.isFullyFinalised()) {
         // Find the first FinalisedError failure amongst the processing failures (if any)
 
-        const finalisedFailure = Arrays.flatten(processOutcomes)
+        const finalisedFailure = (Array.isArray(processOutcomes) ? Arrays.flatten(processOutcomes) : [processOutcomes])
           .find(o => o && o.isFailure && o.isFailure() && isInstanceOf(o.error, FinalisedError));
 
         if (finalisedFailure) {
