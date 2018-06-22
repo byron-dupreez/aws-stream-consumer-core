@@ -1243,7 +1243,10 @@ function finaliseBatch(batch, processOutcomes, cancellable, context) {
       // Throw an error to trigger replay of the batch if the batch is NOT fully finalised yet (& sequencing is required)
       if (!batch.isFullyFinalised()) {
         // Find the first FinalisedError failure amongst the processing failures (if any)
-        const finalisedFailure = Arrays.flatten(processOutcomes).find(o => o.isFailure() && isInstanceOf(o.error, FinalisedError));
+
+        const finalisedFailure = Arrays.flatten(processOutcomes)
+          .find(o => o && o.isFailure && o.isFailure() && isInstanceOf(o.error, FinalisedError));
+
         if (finalisedFailure) {
           // Convert the FinalisedError into a FatalError
           const fatalError = new FatalError(`FATAL - ${finalisedFailure.error.message}`, finalisedFailure.error);

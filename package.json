@@ -1,6 +1,6 @@
 {
   "name": "aws-stream-consumer-core",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "description": "Common utilities for building robust AWS Lambda consumers of stream events from Amazon Web Services (AWS) Kinesis or DynamoDB streams",
   "author": "Byron du Preez",
   "license": "Apache-2.0",

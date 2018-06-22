@@ -1,5 +1,8 @@
 ## Changes
 
+### 2.1.8
+- Fixed search for `FinaliseError` failures amongst the processing outcomes to avoid non-Try/undefined/null outcomes
+
 ### 2.1.7
 - Changes to `stream-consumer` module:
   - Removed the leaky registration of an `unhandledRejection` event handler on the global `process` object
